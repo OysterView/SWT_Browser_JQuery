@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>demo1</title> 
+
+<script type="text/javascript">
+function display(){
+  var returnFromJavaArray = get("666");
+  document.getElementById("demo").innerHTML = returnFromJavaArray[0]+returnFromJavaArray[1];
+}		
+</script>
+
+</head>
+<body>
+
+<p>点击按钮执行 <em>display</em> 函数.</p>
+<button onclick="display()">点这里</button>
+
+<p id="demo">777</p>
+
+</body>
+</html>
