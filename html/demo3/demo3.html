@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="keywords" content="jquery,ui,easy,easyui,web">
+<meta name="description"
+	content="easyui help you build your web page easily!">
+<title>DataGrid Virtual Scrolling - jQuery EasyUI Demo</title>
+<!-- 注意这里要使用绝对路径，为什么不用相对路径？我也不知道，用相对路径用chrome可以正常运行，
+	但是SWT却不可以，坑了我很久！可能是SWT的BUG，当然你也可以使用URL，但是URL要联网 -->
+<!-- 	<link rel="stylesheet" type="text/css" href="file:///F:/项目/SWT_Browser_JQuery/html/demo2/jquery-easyui-1.3.2/themes/default/easyui.css"> -->
+<link rel="stylesheet" type="text/css"
+	href="jquery-easyui-1.3.2/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css"
+	href="jquery-easyui-1.3.2/themes/icon.css">
+<link rel="stylesheet" type="text/css"
+	href="jquery-easyui-1.3.2/demo/demo.css">
+<script src="jquery-easyui-1.3.2/jquery-1.8.0.min.js"></script>
+<script src="jquery-easyui-1.3.2/jquery.easyui.min.js"></script>
+<!-- 支持显示海量数据插件datagrid-scrollview.js, 要匹配jquery.easyui.min.js和jquery.min.js版本，不然会有问题-->
+<script src="datagrid-scrollview.js"></script>
+<script src="demo2.js"></script>
+
+
+<!-- 以下是用URL的例子 -->
+<!-- <link rel="stylesheet" type="text/css" href="http://www.w3cschool.cc/try/jeasyui/themes/default/easyui.css"> -->
+<!-- <link rel="stylesheet" type="text/css" href="http://www.w3cschool.cc/try/jeasyui/themes/icon.css"> -->
+<!-- <link rel="stylesheet" type="text/css" href="http://www.w3cschool.cc/try/jeasyui/demo/demo.css"> -->
+<!-- <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script> -->
+<!-- <script type="text/javascript" src="http://www.w3cschool.cc/try/jeasyui/jquery.easyui.min.js"></script> -->
+
+
+<style type="text/css">
+.datagrid-header-rownumber, .datagrid-cell-rownumber {
+	width: 40px;
+}
+</style>
+
+<script type="text/javascript">
+	
+	$(function() {
+		$
+		.extend(
+				$.fn.datagrid.methods,
+				{
+					myAppendRow : function(jq, row) {
+						return jq
+								.each(function() {
+									var object = this;
+									var data = $.data(object,
+											"datagrid").data;
+									var opts = $.data(object,
+											"datagrid").options;
+									var view = $.data(object,
+											"datagrid").options.view;
+									var dc = $.data(object,
+											'datagrid').dc;
+									var top = $(dc.body2)
+											.scrollTop();//被卷起的高度  
+									var index = Math
+											.floor(top / 25);//获取被卷起的行索引，如：卷起一行半37.5，index为1  
+									var page = Math.floor(index
+											/ opts.pageSize) + 1;//获取页数，如果每页10条，卷起262.5，page为2  
+									view.getRows
+											.call(
+													view,
+													object,
+													page,
+													function(
+															rows) {
+														view.index = (page - 1)
+																* opts.pageSize;//view.index存放的是page页第一行的索引  
+														view.rows = rows;//view.rows存放需要画的tr  
+														view.r1 = rows;
+														view.r2 = [];
+														view.populate
+																.call(
+																		view,
+																		object);
+														dc.body2
+																.triggerHandler('scroll.datagrid');
+													});
+								});
+					}
+				});
+// $.extend($.fn.datagrid.methods, {
+// 	setData : function(jq, data) {
+// 		return jq.each(function() {
+// 			$.data(this, "datagrid").data = data;
+// 		});
+// 	}
+// });
+$.extend($.fn.datagrid.methods, {
+	mySctrollTo : function(jq, data) {
+		return jq.each(function() {
+// 			$.data(this, "datagrid").data = data;
+			$.data(object,
+			'datagrid').dc.body2
+			.triggerHandler('scroll.datagrid');
+		});
+	}
+});
+	});
+	
+	
+	
+	function loadData_new(){
+		//在js文件可以注释没有问题，可能HTML在加载的时候会处理吧，但不要在HTML里面写js的时候写注释，会有问题
+		var datas = jsEntity.getDataFromJava("666");
+		//从java拿到的是一个json string，需要把它转化为json object
+		var dataJson = $.parseJSON( datas );
+		$('#tt').datagrid('loadData', dataJson);
+		$("#demo").text("总行数："+$('#tt').datagrid('getData')['total']);	
+		$('#tt').datagrid('scrollTo',$('#tt').datagrid('getData')['total']-1);
+	}
+	function scrollToBottom() {
+		var e = $('#tt').parent().children('div.datagrid-view2')
+				.children('div.datagrid-body');
+		var position = e.scrollTop();
+		e.scrollTop(e[0].scrollHeight - e.height() + 20);
+	}
+	var loadDataTime = 0;
+	var timer = null;
+	var isReflash = false;
+	function reflashTable() {
+		
+		if(!isReflash){
+			return;
+		}
+		
+		
+		var tableDataRows = $('#tt').datagrid('getData');
+		var row = jsEntity.getOneRow();
+		jsEntity.log(row);
+		var rowJson = $.parseJSON( row );
+// 		tableDataRows.rows.unshift(rowJson);
+		tableDataRows.rows.push(rowJson);
+		tableDataRows.total = tableDataRows.total + 1;
+// 		if (loadDataTime === 1) {
+// 			$('#tt').datagrid('loadData', tableDataRows);
+// 		} else {
+// 			loadDataTime = loadDataTime + 1;
+// 		}
+		jsEntity.log(loadDataTime+"");
+		if (tableDataRows.rows.length > 100500) {
+			tableDataRows.rows.splice(0, tableDataRows.rows.length - 100500);
+			tableDataRows.total = 100500;
+		}
+		$('#tt').datagrid('myAppendRow', tableData);
+		scrollToBottom();
+	}
+	var tableData = {
+			"total" : 0,
+			"rows" : []
+		};
+	function startReflash() {
+		reflashTable();
+		clearInterval(timer);
+		timer = setInterval(function() {
+			reflashTable()
+		}, 30);
+		isReflash = true;
+	}
+	function stopReflash() {
+// 		if (timer != null) {
+// 			clearInterval(timer);
+// 		}
+// 		$('#tt').datagrid('myAppendRow', tableData);
+// 		scrollToBottom();
+isReflash = false;
+$('#tt').datagrid('mySctrollTo', tableData);
+	}
+	
+	function reload(){
+		jsEntity.reload();
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	</script>
+
+
+</head>
+
+<body>
+	<h2>DataGrid Virtual Scroll View Demo<-----> 支持显示海量数据</h2>
+	<div class="demo-info" style="margin-bottom: 10px">
+		<div class="demo-tip icon-tip">&nbsp;</div>
+		<div>Drag the vertical scroll and release it to navigate to the
+			desired page.</div>
+	</div>
+
+	<table id="tt" class="easyui-datagrid"
+		style="width: 1000px; height: 700px"
+		title="DataGrid - VirtualScrollView"
+		data-options="view:scrollview,rownumbers:true,singleSelect:true,
+				autoRowHeight:false,pageSize:100">
+		<thead>
+			<tr>
+				<th field="inv" width="80">Inv No</th>
+				<th field="date" width="250">Date</th>
+				<th field="name" width="80">Name</th>
+				<th field="amount" width="80" align="right">Amount</th>
+				<th field="price" width="80" align="right">Price</th>
+				<th field="cost" width="100" align="right">Cost</th>
+				<th field="note" width="110">Note</th>
+			</tr>
+		</thead>
+	</table>
+	<button type="button" onclick="loadData_new()">从JAVA加载数据</button>
+	<button type="button" onclick="jsToJava()">调用java</button>
+	<button id="reload" type="button" onclick="reload()">刷新界面</button>
+	<button id="startReflash" type="button" onclick="startReflash()">开始刷新</button>
+	<button id="stopReflash" type="button" onclick="stopReflash()">停止刷新</button>
+	<button id="scrollToBottom" type="button" onclick="scrollToBottom()">定位到底部</button>
+	<button id="scrollToBottom1" type="button" onclick="scrollToBottom()">666</button>
+
+	<p id="demo">777</p>
+</body>
+</html>

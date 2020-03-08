@@ -5,5 +5,10 @@
 	<classpathentry kind="lib" path="lib/org.eclipse.core.runtime_3.11.1.v20150903-1804.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.swt.win32.win32.x86_3.104.2.v20160212-1350.jar"/>
 	<classpathentry kind="lib" path="lib/fastjson-1.2.62.jar"/>
+	<classpathentry kind="lib" path="lib/jxbrowser-6.21.jar"/>
+	<classpathentry kind="lib" path="lib/jxbrowser-linux64-6.21.jar"/>
+	<classpathentry kind="lib" path="lib/jxbrowser-mac-6.21.jar"/>
+	<classpathentry kind="lib" path="lib/jxbrowser-win32-6.21.jar"/>
+	<classpathentry kind="lib" path="lib/jxbrowser-win64-6.21.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
